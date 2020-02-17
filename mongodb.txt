@@ -1,0 +1,135 @@
+//Operaciones CRUD (ABC) para la aplicación de Administrador de Tareas 
+//importamos el modulo de mongoDB
+/* const mongodb = require('mongodb')
+const MongoClient = mongodb.MongoClient 
+//  Creamos nuestros popios ID's
+const ObjectID = mongodb.ObjectID   */
+const { MongoClient, ObjectID } = require('mongodb')
+
+//Definimos la URl para la coneción con la BD de mongo
+const connectionURL = 'mongodb://127.0.0.1:27017'
+const databaseName = 'task-manager'
+
+// Generamos nuestros porpios ID's
+/* const id = new ObjectID()
+console.log(id.id.length);
+console.log(id.toHexString().length);
+// console.log(id.getTimestamp()); */
+
+
+// Dentro irá el Crud de nuestra base de datos.
+//Usamos el MongoClient para conectarnos al servidor /* .id */
+MongoClient.connect(connectionURL, { useNewUrlParser: true}, (err, cliente) => {
+    if (err) {
+        return console.log('No se puede conectar a la Base de Datos!!!');
+    } 
+    //creación de la Bd mediante MongoDB
+    const db = cliente.db(databaseName) 
+
+    //En MongoDb tenemos documentos
+    /* db.collection('users').insertOne({
+        // _id: id, Remover esta linea
+        name: 'Diego',
+        edad: 28
+    }, (err, result) => {
+        if (err) {
+            return console.log('No se ah podido ingresar usuario (Verifique los Datos)');
+        }  
+
+        console.log(result.ops);
+    }) */
+
+
+    // referencia hacia la coleccìon que queremos ingresar a la base de datos
+    //En este ejemplo ingresamos más de un documento.
+    /* db.collection('users').insertMany([
+        {
+            name: 'Michael',
+            edad: 26
+        }, {
+            name: 'Norma',
+            edad: 47
+        }
+    ], (err, result) => {
+        if (err) {
+            console.log('No se Puede Ingresar Usuarios. ');
+        }
+        console.log(result.ops);
+    }) */
+
+    // Colección Administrador
+    /* db.collection('task').insertMany([
+        {
+            descripcion: 'Limpiar la Casa',
+            completada: true
+        }, {
+            descripcion: 'Renovar Inscripción',
+            completada: false
+        }, {
+            descripcion: 'Comprar Comida para el Perro',
+            completada: false
+        }
+    ], (err, result) => {
+        if (err) {
+            return console.log('No se puede Ingresar Datos');
+        }
+        console.log(result.ops);
+    }) */
+
+    // Buscar solo Uno
+  /*   db.collection('users').findOne({ _id: new ObjectID('5e4ade3f761ccc0678239e23')}, (err, user) => { 
+        if (err) {
+            return console.log('No es posible efectuar la busqueda');
+        }
+        console.log(user);
+    }) */
+
+    // Busqueda de todo lo que conicida con el objeto mandado
+/*     db.collection('users').find({ edad: 28 }).toArray((err, users) => {
+        console.log(users);
+    })
+    
+    // Consulta usando el metodo Contador
+    db.collection('users').find({ edad: 28 }).count((err, count) => {
+        console.log(count);
+    }) */
+
+    // Buscar Solo a un por su id
+    db.collection('task').findOne({ _id: new ObjectID('5e4ae06ef762a30680befdef') }, (err, task) => {
+        console.log(task); 
+    })
+
+    db.collection('task').find({ completada: false }).toArray((err, task) => {
+        console.log(task);
+    })
+
+    //Actualizacion de Uno o Varios Registros
+    db.collection('users').updateOne({
+        _id: new ObjectID('5e4ad8ea66724406613eafc5')
+    }, {
+        // Operadores de Actualización
+        /* $set: { 
+            name: 'David'
+        } */
+        $inc: { //Incremento
+            edad: 1
+        }
+    }).then((result) => {
+        console.log(result);
+    }).catch((error) => {
+        console.log(error);
+    })
+    db.collection('task').updateMany({
+        completada: false
+    }, {
+        $set: {
+            completada: true
+        }
+    }).then((res) => {
+        console.log(res.modifiedCount);
+    }).catch((err) => {
+        console.log(err);
+    })
+
+
+})
