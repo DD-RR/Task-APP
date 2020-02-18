@@ -131,5 +131,23 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true}, (err, cliente) => {
         console.log(err);
     })
 
+     //Eliminar uno o Varios Registros de MongoDB
+    /* db.collection('users').deleteMany({
+        // Aqui se proporcionan los criterios de busqueda para la eliminación
+        edad: 28
+    }).then((res) => {
+        console.log(res);
+    }).catch((err) => {
+        console.log(err);
+    }) */
+    //Elimincación de un documento mediante su descripción
+    db.collection('task').deleteOne({
+        descripcion: 'Renovar Inscripción'
+    }).then((resu) => {
+        console.log(resu);
+    }).catch((err) => {
+        console.log(err);
+    })
+
 
 })

@@ -16,8 +16,8 @@
   "bugs": {
     "url": "https://github.com/DD-RR/Task-APP/issues"
   },
-  "homepage": "https://github.com/DD-RR/Task-APP#readme",
   "dependencies": {
-    "mongodb": "^3.1.10"
+    "mongoose": "^5.3.16",
+    "validator": "^10.9.0"
   }
 }
