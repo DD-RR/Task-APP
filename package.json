@@ -4,7 +4,8 @@
   "description": "Aplicación de un Administrador de Tareas, uso de MONGODB para el ABC para nuestra Aplicación del Administrador de Tareas.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,11 @@
     "url": "https://github.com/DD-RR/Task-APP/issues"
   },
   "dependencies": {
+    "express": "^4.16.4",
     "mongoose": "^5.3.16",
     "validator": "^10.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
   }
 }

@@ -150,4 +150,155 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true}, (err, cliente) => {
     })
 
 
+}) 
+
+// documento mongodb.js
+
+//Operaciones CRUD (ABC) para la aplicación de Administrador de Tareas 
+
+const { MongoClient, ObjectID } = require('mongodb')
+
+//Definimos la URl para la coneción con la BD de mongo
+const connectionURL = 'mongodb://127.0.0.1:27017'
+const databaseName = 'task-manager'
+
+MongoClient.connect(connectionURL, { useNewUrlParser: true }, (err, client) => {
+    if (err) {
+        return console.log('No se ah podido Conectar con la Base de Datos (Intente Nuevamente)');
+    }
+    const db = client.db(databaseName)
+
 })
+
+
+--------------------------------------------------------------------------
+Este codigo va dentro de la siguiente ruta src/db/mongoose.js
+// Creando Nuevas instancias de los modelos y guardarlas 
+/* const me = new User({
+    nombre: '    Diego     ',
+    correo: 'MIEMAIL@AOL.IO     ',
+    password: 'phone989!'
+})
+
+me.save().then(() => {
+    console.log(me);
+}).catch((err) => {
+    console.log('Error!', err);
+}) */
+
+/* const task = new Task({
+    descripcion: 'Aprender Como usar la libreria de Mongoose',
+    completada: true
+})
+
+task.save().then(() => {
+    console.log(task);
+}).catch((err) => {
+    console.log('Erro!', err);   
+}) */
+
+
+--------------------------------------------------------------------------
+//Archivo index.js en este caso se utilizará async y awath para hacer la aplicación mucho más facil de mantener.
+// Librerias que se van a usar
+const express = require('express')
+// No deseamos tomar nada de aqui solo se desa conectar a la base de datos 
+require('./db/mongoose')
+// Cargamos el Usuario y Tareas
+const User = require('./models/user')
+const Task = require('./models/task')
+
+// Creando nuevas aplicaciones en express
+const app = express()
+const port = process.env.PORT || 3000
+
+// Configuración de Post para pasar los json
+app.use(express.json())
+
+//Creacion de endpoints (Rutas para los usuarios)
+app.post('/users', (req, res) => {
+    // Creamos una nueva instancia de Usuario dentro del controlador de ruta
+    const user = new User(req.body) //Pasamos un objeto con todos los atributos que deseamos configurar
+    //Configuramos la funciñon tipo flecha para el control de exitos y el manejo de errores
+    user.save().then(() => {
+        res.status(201).send(user)
+    }).catch((e) => {
+        // Cuando enviamos errores podemos cambiar el Status del codigo, importante enviar el stado del error antes del error
+        res.status(400).send(e);
+    })
+}) 
+//Busqueda de todos los Usuarios de la db
+app.get('/users', (req, res) => {
+    // Esto recupera todos los usuarios almacenados en la bd
+     User.find({}).then((user) => {
+        res.send(user)
+     }).catch((e) => {
+        res.status(500).send()
+     })
+})
+
+//Busqueda por ID de la DB
+app.get('/users/:id', (req, res) => {
+     //Creamos una variable para obtener el valor del id que se va a buscar
+    const _id = req.params.id
+    User.findById(_id).then((user) => {
+        //Si no hay concidencias con el usuario enviara un error
+        if (!user) {
+            return res.status(404).send()
+        } 
+        //Respuesta por si llega a encontrar un usuario dentro de la BD
+        res.send(user)
+     //Por si la conección llega a fallar   
+    }).catch((e) => {
+        res.status(500).send()
+    })
+
+})
+
+
+//Creacion de endpoints (Rutas para los tareas)
+app.post('/task', (req, res) => {
+    const task = new Task(req.body)
+    //Podemos cambiar el estado del la respuesta para ser más especifico en el ingreso de datos
+    task.save().then(() => {
+        res.status(201).send(task)
+    }).catch((e) => {
+        res.status(400).send(e)
+    })
+})
+
+
+//Busqueda de todos las Tareas de la db
+app.get('/task', (req, res) => {
+    // Esto recupera todos las tareas almacenados en la bd
+     Task.find({}).then((task) => {
+        res.send(task)
+     }).catch((e) => {
+        res.status(500).send()
+     })
+})
+
+//Busqueda por ID de la DB
+app.get('/task/:id', (req, res) => {
+     //Creamos una variable para obtener el valor del id que se va a buscar
+    const _id = req.params.id
+    Task.findById(_id).then((task) => {
+        //Si no hay concidencias con alguna tarea enviara un error
+        if (!task) {
+            return res.status(404).send()
+        } 
+        //Respuesta por si llega a encontrar una tarea dentro de la BD
+        res.send(task)
+     //Por si la conección llega a fallar   
+    }).catch((e) => {
+        res.status(500).send()
+    })
+
+})
+
+
+
+app.listen(port, () => {
+    console.log('Servidor levantado en el puert: ' + port);
+})
+
