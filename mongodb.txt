@@ -215,6 +215,13 @@ const port = process.env.PORT || 3000
 // Configuración de Post para pasar los json
 app.use(express.json())
 
+// Enrutador para las peticiones sencillas
+const router = new express.Router()
+router.get('/test', (req, res) => {
+    res.send('Mensaje desde mi otro Routrer')
+})
+app.use(router)
+
 //Creacion de endpoints (Rutas para los usuarios)
 app.post('/users', (req, res) => {
     // Creamos una nueva instancia de Usuario dentro del controlador de ruta
