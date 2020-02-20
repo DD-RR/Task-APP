@@ -303,9 +303,139 @@ app.get('/task/:id', (req, res) => {
 
 })
 
+//Ejemplo de como hacer segura la contraseña de un usuario 
+const bcrypt = require('bcryptjs')
+const myFunction = async () =>{
+    const password = 'Red12345'
+    const hashedPassword = await bcrypt.hash(password, 8) //El segundo argumento es el número de veces por el cual el algoritmo de hash se va a ejecutar
+    console.log(password); //Contraseña en txto plano
+    console.log(hashedPassword); //Se imprime la contraseña ya encriptada con el hash
+
+    const isMatch = await bcrypt.compare('Red12345', hashedPassword)// En esta linea se compara la contraseña con el hash y la contraseña en texto plano si el hash es igual Las contraseñas son iguales.
+    console.log(isMatch); // Devuelve un Verdadero o Falso si la contraseña y el hash de la contraseña es identico
+}
+
+myFunction()
 
 
 app.listen(port, () => {
     console.log('Servidor levantado en el puert: ' + port);
 })
 
+--------------------------------------------------------------------------------------------------
+const bcrypt = require('bcryptjs')
+
+const myFunction = async () => {
+    const password = 'Red12345'
+    const hashedPassword = await bcrypt.hash(password, 8) //El segundo argumento es el número de veces por el cual el algoritmo de hash se va a ejecutar
+    console.log(password); //Contraseña en txto plano
+    console.log(hashedPassword); //Se imprime la contraseña ya encriptada con el hash
+
+    const isMatch = await bcrypt.compare('Red12345', hashedPassword)// En esta linea se compara la contraseña con el hash y la contraseña en texto plano si el hash es igual Las contraseñas son iguales.
+    console.log(isMatch); // Devuelve un Verdadero o Falso si la contraseña y el hash de la contraseña es identico
+}
+
+myFunction()
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Funcion de Middleware
+/* app.use((req, res, next) => {
+    if (req.method === 'GET') {
+        res.send('Respuesta GET Deshabilitada')
+    } else {
+        next()
+    }
+}) */
+
+app.use((req, res, next) => {
+    res.status(503).send('Sitio actualmente está inactivo. Vuelve pronto!')
+})
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Esto recupera todos los usuarios almacenados en la bd
+    try {
+        const user = await User.find({})
+        res.send(user)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Json web Tokens
+
+const jwt = require('jsonwebtoken')
+
+const myFunction = async () => {
+    //Creamos tokens para la autenticacón y validarlos
+    const token = jwt.sign({ _id: 'abc123' }, 'jsonwebtoken', {expiresIn: '7 days'})
+    console.log(token);
+    const data = jwt.verify(token, 'jsonwebtoken')
+    console.log(data);
+}
+
+myFunction()
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Busqueda por ID de la DB
+router.get('/users/:id', async (req, res) => {
+     //Creamos una variable para obtener el valor del id que se va a buscar
+    const _id = req.params.id
+    try {
+        const user = await User.findById({_id})
+        if (!user) {
+            return res.status(404).send()
+        }
+        res.send(user)
+    } catch (err) {
+        res.status(500).send() 
+    }
+})
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Eliminación de Usuarios
+router.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id)
+        if (!user) {
+            return res.status(404).send()
+        }
+        res.send(user)
+    } catch (e) {
+        res.status(500).send()
+    }
+
+})
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Actualización de Usuarios by Id
+router.patch('/users/:id', async (req, res) => {
+    //
+    const updates = Object.keys(req.body)
+    //Actualizaciones permitidas
+    const allowedUpdates = ['nombre', 'correo', 'edad', 'password']
+    //Determinar si las actualizaciones se pueden encontrar dentro de las permitidas 
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+    if (!isValidOperation) {
+        return res.status(404).send({ error: 'Actualizaciones Invalidas!' })
+    } 
+    try {
+        //Actualizaciones dinamicas
+        const user = await User.findById(req.params.id)
+        updates.forEach((update) => user[update] = req.body[update])
+        await user.save()
+        // Este metodo pasa por alto el mongoose
+        // const user = await User.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators:true})
+        if (!user) {
+            return res.status(404).send()
+        }
+        res.send(user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
