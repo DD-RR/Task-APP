@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Task = require('./task')
 
 // Encriotar contraseña con bcrypt
 //Recibe un objeto con todas las propiedades para este esquema.
@@ -53,6 +54,14 @@ const userSchema = new  mongoose.Schema({
     }]
 })
 
+
+//Propiedades Vituales
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'propietario'
+})
+
 // Forma manual para obtener el perfil del usuario
 // userSchema.methods.getPublicProfile = function () {
 userSchema.methods.toJSON = function () {
@@ -95,7 +104,7 @@ Dentro de la constante usuario de nuestro modelo de mongoose.
 En este caso estamos creando un esquema y un modelo por separado */
 
 //se utiliza el esquema creado para la realización de un middleware
-/* El pre se usa para usarlo antes de un evento y se pasarán dos arumentos
+/* El pre se usa para antes de un evento y se pasarán dos arumentos
 El primero es el nombre del evento y el segundo es una funcion standar para ser ejecutada
 Ya que desesmpeña un papel importante */
 // hash en el password
@@ -110,6 +119,16 @@ userSchema.pre('save', async function (next) {
     next()
 })
 
+// Eliminando tareas de Usuarios cuando el usuario es eliminado.
+userSchema.pre('remove', async function (next) {
+    const user = this
+    await Task.deleteMany({ propietario: user._id})
+    next()
+})
+
+
+//Nombre del modelo (Se puede usar dentro de otros modelos al pasar Exactamente el nombre del modelo en este caso 'User')
+//Asì podemos extablecer una relación entre este modelo y el que ocupa las popiedades de este.
 const User = mongoose.model('User', userSchema)
 
 module.exports= User

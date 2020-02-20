@@ -8,6 +8,7 @@ const taskRouter= require('./router/task')
 
 // Creando nuevas aplicaciones en express
 const app = express()
+//Levantando el Servidor en el puerto N
 const port = process.env.PORT || 3000
 
 // Configuración de Post para pasar los json
@@ -21,3 +22,4 @@ app.use(taskRouter)
 app.listen(port, () => {
     console.log('Servidor levantado en el puerto: ' + port);
 })
+
